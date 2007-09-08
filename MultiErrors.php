@@ -9,7 +9,7 @@
  * Usage:
  * 
  * <code>
- * $multi = new PEAR2_Pyrus_MultiErrors;
+ * $multi = new PEAR2_MultiErrors;
  * $multi[E_WARNING] = new SomeException('Not serious');
  * $multi[E_WARNING] = new SomeException('Another not too serious');
  * $multi[E_ERROR] = new BadException('Really serious');
@@ -24,10 +24,10 @@
  * }
  * </code>
  * @copyright 2007 Gregory Beaver
- * @package PEAR2_Pyrus_MultiErrors
+ * @package PEAR2_MultiErrors
  * @license http://www.php.net/license/3_0.txt PHP License
  */
-class PEAR2_Pyrus_MultiErrors implements Iterator, Countable, ArrayAccess {
+class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
 
     /**
      * Errors are stored in the order that they are declared
@@ -100,7 +100,7 @@ class PEAR2_Pyrus_MultiErrors implements Iterator, Countable, ArrayAccess {
 
  	public function offsetExists($offset)
  	{
- 	    throw new PEAR2_Pyrus_MultiErrors_Exception('isset() is not implemented, use count()');
+ 	    throw new PEAR2_MultiErrors_Exception('isset() is not implemented, use count()');
  	}
 
  	public function offsetGet ($offset)
@@ -118,10 +118,10 @@ class PEAR2_Pyrus_MultiErrors implements Iterator, Countable, ArrayAccess {
  	public function offsetSet ($offset, $value)
  	{
  	    if (!($value instanceof Exception)) {
- 	        throw new PEAR2_Pyrus_MultiErrors_Exception('offsetSet: $value is not an Exception object');
+ 	        throw new PEAR2_MultiErrors_Exception('offsetSet: $value is not an Exception object');
  	    }
  	    if (!is_int($offset)) {
- 	        throw new PEAR2_Pyrus_MultiErrors_Exception('offsetSet: $offset is not an integer');
+ 	        throw new PEAR2_MultiErrors_Exception('offsetSet: $offset is not an integer');
  	    }
  	    if (in_array($offset, array(E_NOTICE, E_WARNING, E_ERROR))) {
             $count = count($this->_errors);
@@ -132,7 +132,7 @@ class PEAR2_Pyrus_MultiErrors implements Iterator, Countable, ArrayAccess {
 
  	public function offsetUnset ($offset)
  	{
- 	    throw new PEAR2_Pyrus_MultiErrors_Exception('unset() is not implemented');
+ 	    throw new PEAR2_MultiErrors_Exception('unset() is not implemented');
  	}
 
  	public function toArray()
