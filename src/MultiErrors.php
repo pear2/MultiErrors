@@ -9,17 +9,19 @@
  * Usage:
  * 
  * <code>
- * $multi = new PEAR2_MultiErrors;
- * $multi[E_WARNING] = new SomeException('Not serious');
- * $multi[E_WARNING] = new SomeException('Another not too serious');
- * $multi[E_ERROR] = new BadException('Really serious');
- * foreach ($multi as $e) {
- *     echo $e;
+ * $multi = new PEAR2_MultiErrors();
+ * $multi->E_WARNING[] = new Exception('test');
+ * $multi->E_ERROR[] = new Exception('test 2');
+ * foreach ($multi as $error) {
+ *     echo $error;
  * }
- * foreach ($multi[E_WARNING] as $e) {
- *     echo $e;
+ * foreach ($multi->E_WARNING as $error) {
+ *     echo $error;
  * }
- * if (count($multi[E_ERROR])) {
+ * foreach ($multi->E_ERROR as $error) {
+ *     echo $error;
+ * }
+ * if (count($multi->E_ERROR)) {
  *     throw new PEAR2_Exception('Failure to do something', $multi);
  * }
  * </code>
@@ -36,81 +38,72 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
     private $_errors = array();
 
     /**
-     * Storage of errors by level.
+     * To allow $this->E_WARNING[] = new BlahException;
      *
-     * Allows easy retrieval and deletion of only errors from a particular level
-     * @var array
-     */
-    private $_errorsByLevel = array();
-
-    /**
-     * For usage by 
-     *
-     * @var unknown_type
+     * @var int
      */
     private $_requestedLevel = false;
 
+    /**
+     * Internal PEAR2_MultiError objects for error levels
+     * @var array
+     */
+    private $_subMulti = array();
+
+    /**
+     * Parent PEAR2_MultiErrors for an error level tracker
+     *
+     * @var PEAR2_MultiErrors
+     */
+    private $_parent;
+
+    public function __construct($level = false, PEAR2_MultiErrors $parent = null)
+    {
+        $this->_requestedLevel = $level;
+        if ($level) {
+            $this->_parent = $parent;
+        }
+    }
+
     public function current()
     {
-        if ($this->_requestedLevel) {
-            return current($this->_errorsByLevel[$this->_requestedLevel]);
-        }
         return current($this->_errors);
     }
 
     public function key()
  	{
-        if ($this->_requestedLevel) {
-            return key($this->_errorsByLevel[$this->_requestedLevel]);
-        }
-        return key($this->_errors);
+ 	    return key($this->_errors);
  	}
 
  	public function next()
  	{
-        if ($this->_requestedLevel) {
-            return next($this->_errorsByLevel[$this->_requestedLevel]);
-        }
-        return next($this->_errors);
+ 	    return next($this->_errors);
  	}
 
  	public function rewind()
  	{
-        if ($this->_requestedLevel) {
-            return rewind($this->_errorsByLevel[$this->_requestedLevel]);
-        }
-        return rewind($this->_errors);
+ 	    return reset($this->_errors);
  	}
 
  	public function valid()
  	{
-        return $this->current() !== false;
+ 	    return false !== current($this->_errors);
  	}
 
  	public function count()
  	{
- 	    if ($this->_requestedLevel) {
- 	        if (isset($this->_errorsByLevel[$this->_requestedLevel])) {
- 	            return count($this->_errorsByLevel[$this->_requestedLevel]);
- 	        }
- 	        return 0;
- 	    }
  	    return count($this->_errors);
  	}
 
  	public function offsetExists($offset)
  	{
- 	    throw new PEAR2_MultiErrors_Exception('isset() is not implemented, use count()');
+ 	    return isset($this->_errors[$offset]);
  	}
 
  	public function offsetGet ($offset)
  	{
- 	    if (isset($this->_errorsByLevel[$offset])) {
- 	        $save = $this->_requestedLevel;
- 	        $this->_requestedLevel = $offset;
- 	        $a = clone $this;
- 	        $this->_requestedLevel = $save;
- 	        return $a;
+ 	    if (isset($this->_errors[$offset])) {
+ 	        return $this->_errors[$offset];
  	    }
  	    return null;
  	}
@@ -120,19 +113,54 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
  	    if (!($value instanceof Exception)) {
  	        throw new PEAR2_MultiErrors_Exception('offsetSet: $value is not an Exception object');
  	    }
- 	    if (!is_int($offset)) {
- 	        throw new PEAR2_MultiErrors_Exception('offsetSet: $offset is not an integer');
- 	    }
- 	    if (in_array($offset, array(E_NOTICE, E_WARNING, E_ERROR))) {
-            $count = count($this->_errors);
-            $this->_errors[$count] = $err;
-            $this->_errorsByLevel[$level][] = &$this->_errors[$count];
+ 	    if ($this->_requestedLevel) {
+     	    if ($offset === null) {
+     	        // called with $a->E_BLAH[] = new Exception('hi');
+     	        $offset = count($this->_errors);
+     	    }
+     	    if (!is_int($offset)) {
+     	        throw new PEAR2_MultiErrors_Exception('offsetSet: $offset is not an integer');
+     	    }
+     	    $this->_errors[$offset] = $value;
+ 	        $this->_parent[$this->_requestedLevel . '-' . $offset] = $value;
+ 	    } else {
+ 	        if (!is_string($offset)) {
+ 	            throw new PEAR2_MultiErrors_Exception('Cannot add an error directly ' .
+ 	                'to a PEAR2_MultiErrors with $a[] = new Exception, use an ' .
+ 	                ' E_* constant like $a->E_WARNING[] = new Exception');
+ 	        }
+ 	        $offset = explode('-', $offset);
+ 	        $level = $offset[0];
+ 	        $offset = $offset[1];
+ 	        // this is called when the "$this->_parent[] = $value" line is executed.
+ 	        if (!isset($this->_subMulti[$level]) ||
+ 	              $this->_subMulti[$level][$offset] !== $value) {
+                // must be in a child or it'll throw off the whole thingy
+ 	            throw new PEAR2_MultiErrors_Exception('Cannot add an error directly ' .
+ 	                'to a PEAR2_MultiErrors with $a[] = new Exception, use an ' .
+ 	                ' E_* constant like $a->E_WARNING[] = new Exception');
+ 	        }
+ 	        $this->_errors[] = $value;
  	    }
  	}
 
  	public function offsetUnset ($offset)
  	{
- 	    throw new PEAR2_MultiErrors_Exception('unset() is not implemented');
+ 	    if (isset($this->_errors[$offset])) {
+ 	        unset($this->_errors[$offset]);
+ 	    }
+ 	}
+
+ 	public function __get($level)
+ 	{
+ 	    if (strlen($level) > 2 && substr($level, 0, 2) === 'E_') {
+ 	        if (!isset($this->_subMulti[$level])) {
+     	        $this->_subMulti[$level] = new PEAR2_MultiErrors($level, $this);
+ 	        }
+ 	        return $this->_subMulti[$level];
+ 	    }
+ 	    throw new PEAR2_MultiErrors_Exception('Requested error level must be an E_* ' .
+ 	      'constant (E_ERROR, E_WARNING, E_NOTICE, etc.)');
  	}
 
  	public function toArray()
