@@ -31,6 +31,7 @@
  */
 class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
 
+    private $_allowedLevels = array('E_NOTICE' => 0, 'E_WARNING' => 1, 'E_ERROR' => 2);
     /**
      * Errors are stored in the order that they are declared
      * @var array
@@ -57,8 +58,16 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
      */
     private $_parent;
 
-    public function __construct($level = false, PEAR2_MultiErrors $parent = null)
+    public function __construct($level = false,
+                                array $allowed = array('E_NOTICE', 'E_WARNING', 'E_ERROR'),
+                                PEAR2_MultiErrors $parent = null)
     {
+        foreach ($allowed as $level) {
+            if (!is_string($level) || strpos($level, 'E_') !== 0) {
+                throw new PEAR2_MultiErrors_Exception('Invalid level ' . (string) $level);
+            }
+        }
+        $this->_allowedLevels = array_flip($allowed);
         $this->_requestedLevel = $level;
         if ($level) {
             $this->_parent = $parent;
@@ -90,6 +99,25 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
  	    return false !== current($this->_errors);
  	}
 
+ 	/**
+ 	 * Merge in errors from an existing PEAR2_MultiErrors
+ 	 * 
+ 	 * This also merges in any new error levels not supported in this instance.
+ 	 * @param PEAR2_MultiErrors $error
+ 	 */
+ 	public function merge(PEAR2_MultiErrors $error)
+ 	{
+ 	    $levels = $error->level;
+ 	    foreach ($error->levels as $level) {
+ 	        if (!isset($this->_allowedLevels[$level])) {
+ 	            $this->_allowedLevels[$level] = 1;
+ 	        }
+ 	        foreach ($error->$level as $e) {
+ 	            $this->$level[] = $e;
+ 	        }
+ 	    }
+ 	}
+
  	public function count()
  	{
  	    return count($this->_errors);
@@ -110,6 +138,11 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
 
  	public function offsetSet ($offset, $value)
  	{
+ 	    if ($offset === null && !$this->_requestedLevel &&
+ 	          $value instanceof PEAR2_MultiErrors ) {
+ 	        $this->merge($value);
+ 	        return;
+ 	    }
  	    if (!($value instanceof Exception)) {
  	        throw new PEAR2_MultiErrors_Exception('offsetSet: $value is not an Exception object');
  	    }
@@ -153,14 +186,22 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
 
  	public function __get($level)
  	{
- 	    if (strlen($level) > 2 && substr($level, 0, 2) === 'E_') {
+ 	    if ($level === 'levels') {
+ 	        return $this->_allowedLevels;
+ 	    }
+ 	    if (!count($this->_allowedLevels)) {
+ 	        throw new PEAR2_MultiErrors_Exception('Cannot nest requests ' .
+ 	          '(like $multi->E_WARNING->E_ERROR[] = new Exception(\'\');)');
+ 	    }
+ 	    if (isset($this->_allowedLevels[$level])) {
  	        if (!isset($this->_subMulti[$level])) {
-     	        $this->_subMulti[$level] = new PEAR2_MultiErrors($level, $this);
+     	        $this->_subMulti[$level] = new PEAR2_MultiErrors($level,
+     	          array(), $this);
  	        }
  	        return $this->_subMulti[$level];
  	    }
- 	    throw new PEAR2_MultiErrors_Exception('Requested error level must be an E_* ' .
- 	      'constant (E_ERROR, E_WARNING, E_NOTICE, etc.)');
+ 	    throw new PEAR2_MultiErrors_Exception('Requested error level must be one of ' .
+ 	      implode(', ', $this->_allowedLevels));
  	}
 
  	public function toArray()
