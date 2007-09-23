@@ -113,7 +113,9 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
  	            $this->_allowedLevels[$level] = 1;
  	        }
  	        foreach ($error->$level as $e) {
- 	            $this->$level[] = $e;
+ 	            // we get fatal error if [] is put on $this->$level line
+ 	            $a = $this->$level;
+ 	            $a[] = $e;
  	        }
  	    }
  	}
