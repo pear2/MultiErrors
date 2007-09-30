@@ -58,7 +58,7 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
      */
     private $_parent;
 
-    public function __construct($level = false,
+    public function __construct($mylevel = false,
                                 array $allowed = array('E_NOTICE', 'E_WARNING', 'E_ERROR'),
                                 PEAR2_MultiErrors $parent = null)
     {
@@ -68,7 +68,7 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
             }
         }
         $this->_allowedLevels = array_flip($allowed);
-        $this->_requestedLevel = $level;
+        $this->_requestedLevel = $mylevel;
         if ($level) {
             $this->_parent = $parent;
         }
