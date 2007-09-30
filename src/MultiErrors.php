@@ -69,7 +69,7 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
         }
         $this->_allowedLevels = array_flip($allowed);
         $this->_requestedLevel = $mylevel;
-        if ($level) {
+        if ($mylevel) {
             $this->_parent = $parent;
         }
     }
