@@ -1,0 +1,35 @@
+PEAR2_MultiErrors provides a simple and effective mechanism for
+aggregating many errors and organizing them by severity.
+
+Errors are represented by PHP's built in exception object, and
+severity levels are represented by PHP's pre-defined error levels
+E_ERROR, E_WARNING, or E_NOTICE.  Adding errors to the PEAR2_MultiErrors
+object is simple, and done like adding to an array.  Retrieving errors can
+be done with iteration, and count() can be used to determine whether errors
+were added.
+
+<?php
+include '/path/to/PEAR2/Autoload.php';
+$a = new PEAR2_MultiErrors;
+$a->E_ERROR[] = new Exception('message one');
+$a->E_WARNING[] = new PEAR2_BlahException('message two');
+// iterate over all errors
+foreach ($a as $error) {...}
+// iterate over E_ERROR severity
+foreach ($a->E_ERROR as $error) {...}
+count($a); // 2
+count($a->E_ERROR); // 1
+count($a->E_WARNING); // 1
+count(E_NOTICE); // 0
+?>
+
+Used in conjuction with PEAR2_Exception, it can also be used as a "cause"
+of an Exception:
+
+<?php
+include '/path/to/PEAR2/Autoload.php';
+$a = new PEAR2_MultiErrors;
+$a->E_ERROR[] = new Exception('message one');
+$a->E_ERROR[] = new PEAR2_BlahException('message two');
+throw new PEAR2_Exception('task failed', $a);
+?>
