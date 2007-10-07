@@ -71,7 +71,7 @@ throw new PEAR2_Exception('task failed', $a);
     <min>5.2.0</min>
    </php>
    <pearinstaller>
-    <min>2.0.0</min>
+    <min>2.0.0a1</min>
    </pearinstaller>
   </required>
  </dependencies>
