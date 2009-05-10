@@ -107,15 +107,12 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
      */
     public function merge(PEAR2_MultiErrors $error)
     {
-        $levels = $error->level;
         foreach ($error->levels as $level) {
             if (!isset($this->_allowedLevels[$level])) {
                 $this->_allowedLevels[$level] = 1;
             }
             foreach ($error->$level as $e) {
-                // we get fatal error if [] is put on $this->$level line
-                $a = $this->$level;
-                $a[] = $e;
+                $this->{$level}[] = $e;
             }
         }
     }
@@ -189,7 +186,7 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
     public function __get($level)
     {
         if ($level === 'levels') {
-            return $this->_allowedLevels;
+            return array_keys($this->_allowedLevels);
         }
         if (!count($this->_allowedLevels)) {
             throw new PEAR2_MultiErrors_Exception('Cannot nest requests ' .
@@ -203,7 +200,7 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
             return $this->_subMulti[$level];
         }
         throw new PEAR2_MultiErrors_Exception('Requested error level must be one of ' .
-          implode(', ', $this->_allowedLevels));
+          implode(', ', array_keys($this->_allowedLevels)));
     }
 
     public function toArray()
