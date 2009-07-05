@@ -22,7 +22,7 @@
  *     echo $error;
  * }
  * if (count($multi->E_ERROR)) {
- *     throw new PEAR2_Exception('Failure to do something', $multi);
+ *     throw new \PEAR2_Exception('Failure to do something', $multi);
  * }
  * </code>
  * @copyright 2007 Gregory Beaver
