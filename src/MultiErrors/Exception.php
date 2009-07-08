@@ -1,2 +1,3 @@
 <?php
-class PEAR2_MultiErrors_Exception extends \PEAR2_Exception {}
+namespace pear2\MultiErrors;
+class Exception extends \pear2\Exception {}

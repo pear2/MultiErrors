@@ -9,7 +9,7 @@
  * Usage:
  * 
  * <code>
- * $multi = new PEAR2_MultiErrors();
+ * $multi = new \pear2\MultiErrors();
  * $multi->E_WARNING[] = new Exception('test');
  * $multi->E_ERROR[] = new Exception('test 2');
  * foreach ($multi as $error) {
@@ -22,14 +22,15 @@
  *     echo $error;
  * }
  * if (count($multi->E_ERROR)) {
- *     throw new \PEAR2_Exception('Failure to do something', $multi);
+ *     throw new \pear2\Exception('Failure to do something', $multi);
  * }
  * </code>
  * @copyright 2007 Gregory Beaver
- * @package PEAR2_MultiErrors
+ * @package \pear2\MultiErrors
  * @license http://www.php.net/license/3_0.txt PHP License
  */
-class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
+namespace pear2;
+class MultiErrors implements \Iterator, \Countable, \ArrayAccess {
 
     private $_allowedLevels = array('E_NOTICE' => 0, 'E_WARNING' => 1, 'E_ERROR' => 2);
     /**
@@ -52,19 +53,19 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
     private $_subMulti = array();
 
     /**
-     * Parent PEAR2_MultiErrors for an error level tracker
+     * Parent \pear2\MultiErrors for an error level tracker
      *
-     * @var PEAR2_MultiErrors
+     * @var \pear2\MultiErrors
      */
     private $_parent;
 
     public function __construct($mylevel = false,
                                 array $allowed = array('E_NOTICE', 'E_WARNING', 'E_ERROR'),
-                                PEAR2_MultiErrors $parent = null)
+                                MultiErrors $parent = null)
     {
         foreach ($allowed as $level) {
             if (!is_string($level) || strpos($level, 'E_') !== 0) {
-                throw new PEAR2_MultiErrors_Exception('Invalid level ' . (string) $level);
+                throw new MultiErrors\Exception('Invalid level ' . (string) $level);
             }
         }
         $this->_allowedLevels = array_flip($allowed);
@@ -100,12 +101,12 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
     }
 
     /**
-     * Merge in errors from an existing PEAR2_MultiErrors
+     * Merge in errors from an existing \pear2\MultiErrors
      * 
      * This also merges in any new error levels not supported in this instance.
-     * @param PEAR2_MultiErrors $error
+     * @param \pear2\MultiErrors $error
      */
-    public function merge(PEAR2_MultiErrors $error)
+    public function merge(MultiErrors $error)
     {
         foreach ($error->levels as $level) {
             if (!isset($this->_allowedLevels[$level])) {
@@ -138,12 +139,12 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
     public function offsetSet ($offset, $value)
     {
         if ($offset === null && !$this->_requestedLevel &&
-              $value instanceof PEAR2_MultiErrors ) {
+              $value instanceof self) {
             $this->merge($value);
             return;
         }
-        if (!($value instanceof Exception)) {
-            throw new PEAR2_MultiErrors_Exception('offsetSet: $value is not an Exception object');
+        if (!($value instanceof \Exception)) {
+            throw new MultiErrors\Exception('offsetSet: $value is not an Exception object');
         }
         if ($this->_requestedLevel) {
         if ($offset === null) {
@@ -151,14 +152,14 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
             $offset = count($this->_errors);
         }
         if (!is_int($offset)) {
-            throw new PEAR2_MultiErrors_Exception('offsetSet: $offset is not an integer');
+            throw new MultiErrors\Exception('offsetSet: $offset is not an integer');
         }
         $this->_errors[$offset] = $value;
             $this->_parent[$this->_requestedLevel . '-' . $offset] = $value;
         } else {
             if (!is_string($offset)) {
-                throw new PEAR2_MultiErrors_Exception('Cannot add an error directly ' .
-                    'to a PEAR2_MultiErrors with $a[] = new Exception, use an ' .
+                throw new MultiErrors\Exception('Cannot add an error directly ' .
+                    'to a pear2\MultiErrors with $a[] = new Exception, use an ' .
                     ' E_* constant like $a->E_WARNING[] = new Exception');
             }
             $offset = explode('-', $offset);
@@ -168,8 +169,8 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
             if (!isset($this->_subMulti[$level]) ||
                   $this->_subMulti[$level][$offset] !== $value) {
             // must be in a child or it'll throw off the whole thingy
-                throw new PEAR2_MultiErrors_Exception('Cannot add an error directly ' .
-                    'to a PEAR2_MultiErrors with $a[] = new Exception, use an ' .
+                throw new MultiErrors\Exception('Cannot add an error directly ' .
+                    'to a pear2\MultiErrors with $a[] = new Exception, use an ' .
                     ' E_* constant like $a->E_WARNING[] = new Exception');
             }
             $this->_errors[] = $value;
@@ -189,17 +190,17 @@ class PEAR2_MultiErrors implements Iterator, Countable, ArrayAccess {
             return array_keys($this->_allowedLevels);
         }
         if (!count($this->_allowedLevels)) {
-            throw new PEAR2_MultiErrors_Exception('Cannot nest requests ' .
+            throw new MultiErrors\Exception('Cannot nest requests ' .
               '(like $multi->E_WARNING->E_ERROR[] = new Exception(\'\');)');
         }
         if (isset($this->_allowedLevels[$level])) {
             if (!isset($this->_subMulti[$level])) {
-            $this->_subMulti[$level] = new PEAR2_MultiErrors($level,
+            $this->_subMulti[$level] = new self($level,
               array(), $this);
             }
             return $this->_subMulti[$level];
         }
-        throw new PEAR2_MultiErrors_Exception('Requested error level must be one of ' .
+        throw new MultiErrors\Exception('Requested error level must be one of ' .
           implode(', ', array_keys($this->_allowedLevels)));
     }
 

@@ -57,12 +57,8 @@ throw new pear2\My\Exception('task failed', $a);
  <notes>Initial Release</notes>
  <contents>
   <dir name="/">
-   <dir name="src" baseinstalldir="pear2">
-    <dir name="MultiErrors">
-     <file role="php" name="Exception.php"/>
-    </dir>
-    <file role="php" name="MultiErrors.php"/>
-   </dir>
+   <file role="php" name="php/pear2/MultiErrors/Exception.php"/>
+   <file role="php" name="php/pear2/MultiErrors.php"/>
   </dir>
  </contents>
  <dependencies>
@@ -71,9 +67,14 @@ throw new pear2\My\Exception('task failed', $a);
     <min>5.2.0</min>
    </php>
    <pearinstaller>
-    <min>2.0.0a1</min>
+    <min>1.4.8</min>
    </pearinstaller>
   </required>
  </dependencies>
- <phprelease/>
+ <phprelease>
+  <filelist>
+   <install name="php/pear2/MultiErrors.php" as="pear2/MultiErrors.php"/>
+   <install name="php/pear2/MultiErrors/Exception.php" as="pear2/MultiErrors/Exception.php"/>
+  </filelist>
+ </phprelease>
 </package>
