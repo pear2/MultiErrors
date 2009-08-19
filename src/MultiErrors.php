@@ -30,7 +30,7 @@
  * @license http://www.php.net/license/3_0.txt PHP License
  */
 namespace pear2;
-class MultiErrors implements \Iterator, \Countable, \ArrayAccess {
+class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAccess {
 
     private $_allowedLevels = array('E_NOTICE' => 0, 'E_WARNING' => 1, 'E_ERROR' => 2);
     /**
@@ -73,6 +73,7 @@ class MultiErrors implements \Iterator, \Countable, \ArrayAccess {
         if ($mylevel) {
             $this->_parent = $parent;
         }
+        parent::__construct('multiple errors found');
     }
 
     public function current()
