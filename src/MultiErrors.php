@@ -5,9 +5,9 @@
  * This class is designed to be extended for specific use.  It codifies easy
  * ways of aggregating error conditions that don't necessarily require an exception
  * to be thrown, but do need an easy way to retrieve them.
- * 
+ *
  * Usage:
- * 
+ *
  * <code>
  * $multi = new \pear2\MultiErrors();
  * $multi->E_WARNING[] = new Exception('test');
@@ -30,9 +30,10 @@
  * @license http://www.php.net/license/3_0.txt PHP License
  */
 namespace pear2;
-class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAccess {
-
+class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAccess
+{
     private $_allowedLevels = array('E_NOTICE' => 0, 'E_WARNING' => 1, 'E_ERROR' => 2);
+
     /**
      * Errors are stored in the order that they are declared
      * @var array
@@ -68,11 +69,13 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
                 throw new MultiErrors\Exception('Invalid level ' . (string) $level);
             }
         }
-        $this->_allowedLevels = array_flip($allowed);
+
+        $this->_allowedLevels  = array_flip($allowed);
         $this->_requestedLevel = $mylevel;
         if ($mylevel) {
             $this->_parent = $parent;
         }
+
         parent::__construct('multiple errors found');
     }
 
@@ -103,7 +106,7 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
 
     /**
      * Merge in errors from an existing \pear2\MultiErrors
-     * 
+     *
      * This also merges in any new error levels not supported in this instance.
      * @param \pear2\MultiErrors $error
      */
@@ -113,6 +116,7 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
             if (!isset($this->_allowedLevels[$level])) {
                 $this->_allowedLevels[$level] = 1;
             }
+
             foreach ($error->$level as $e) {
                 $this->{$level}[] = $e;
             }
@@ -129,33 +133,37 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
         return isset($this->_errors[$offset]);
     }
 
-    public function offsetGet ($offset)
+    public function offsetGet($offset)
     {
         if (isset($this->_errors[$offset])) {
             return $this->_errors[$offset];
         }
+
         return null;
     }
 
     public function offsetSet ($offset, $value)
     {
-        if ($offset === null && !$this->_requestedLevel &&
-              $value instanceof self) {
+        if ($offset === null && !$this->_requestedLevel && $value instanceof self) {
             $this->merge($value);
             return;
         }
+
         if (!($value instanceof \Exception)) {
             throw new MultiErrors\Exception('offsetSet: $value is not an Exception object');
         }
+
         if ($this->_requestedLevel) {
-        if ($offset === null) {
-            // called with $a->E_BLAH[] = new Exception('hi');
-            $offset = count($this->_errors);
-        }
-        if (!is_int($offset)) {
-            throw new MultiErrors\Exception('offsetSet: $offset is not an integer');
-        }
-        $this->_errors[$offset] = $value;
+            if ($offset === null) {
+                // called with $a->E_BLAH[] = new Exception('hi');
+                $offset = count($this->_errors);
+            }
+
+            if (!is_int($offset)) {
+                throw new MultiErrors\Exception('offsetSet: $offset is not an integer');
+            }
+
+            $this->_errors[$offset] = $value;
             $this->_parent[$this->_requestedLevel . '-' . $offset] = $value;
         } else {
             if (!is_string($offset)) {
@@ -163,17 +171,20 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
                     'to a pear2\MultiErrors with $a[] = new Exception, use an ' .
                     ' E_* constant like $a->E_WARNING[] = new Exception');
             }
+
             $offset = explode('-', $offset);
-            $level = $offset[0];
+            $level  = $offset[0];
             $offset = $offset[1];
             // this is called when the "$this->_parent[] = $value" line is executed.
             if (!isset($this->_subMulti[$level]) ||
-                  $this->_subMulti[$level][$offset] !== $value) {
-            // must be in a child or it'll throw off the whole thingy
+                $this->_subMulti[$level][$offset] !== $value
+            ) {
+                // must be in a child or it'll throw off the whole thingy
                 throw new MultiErrors\Exception('Cannot add an error directly ' .
                     'to a pear2\MultiErrors with $a[] = new Exception, use an ' .
                     ' E_* constant like $a->E_WARNING[] = new Exception');
             }
+
             $this->_errors[] = $value;
         }
     }
@@ -190,17 +201,20 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
         if ($level === 'levels') {
             return array_keys($this->_allowedLevels);
         }
+
         if (!count($this->_allowedLevels)) {
             throw new MultiErrors\Exception('Cannot nest requests ' .
               '(like $multi->E_WARNING->E_ERROR[] = new Exception(\'\');)');
         }
+
         if (isset($this->_allowedLevels[$level])) {
             if (!isset($this->_subMulti[$level])) {
-            $this->_subMulti[$level] = new self($level,
-              array(), $this);
+                $this->_subMulti[$level] = new self($level, array(), $this);
             }
+
             return $this->_subMulti[$level];
         }
+
         throw new MultiErrors\Exception('Requested error level must be one of ' .
           implode(', ', array_keys($this->_allowedLevels)));
     }
@@ -210,4 +224,3 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
         return $this->_errors;
     }
 }
-?>
