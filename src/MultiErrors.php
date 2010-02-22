@@ -25,9 +25,10 @@
  *     throw new \pear2\Exception('Failure to do something', $multi);
  * }
  * </code>
- * @copyright 2007 Gregory Beaver
+ * @author    Greg Beaver <cellog@php.net>
+ * @copyright 2010 The PEAR Group
  * @package \pear2\MultiErrors
- * @license http://www.php.net/license/3_0.txt PHP License
+ * @license http://www.opensource.org/licenses/bsd-license.php New BSD License
  */
 namespace pear2;
 class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAccess
