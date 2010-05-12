@@ -13,10 +13,10 @@ be done with iteration, and count() can be used to determine whether errors
 were added.
 
 &lt;?php
-include '/path/to/pear2/Autoload.php';
-$a = new pear2\MultiErrors;
+include '/path/to/PEAR2/Autoload.php';
+$a = new PEAR2\MultiErrors;
 $a-&gt;E_ERROR[] = new Exception('message one');
-$a-&gt;E_WARNING[] = new pear2\Blah\Exception('message two');
+$a-&gt;E_WARNING[] = new PEAR2\Blah\Exception('message two');
 // iterate over all errors
 foreach ($a as $error) {...}
 // iterate over E_ERROR severity
@@ -27,15 +27,15 @@ count($a-&gt;E_WARNING); // 1
 count(E_NOTICE); // 0
 ?&gt;
 
-Used in conjuction with pear2\Exception, it can also be used as a &quot;cause&quot;
+Used in conjuction with PEAR2\Exception, it can also be used as a &quot;cause&quot;
 of an Exception:
 
 &lt;?php
-include '/path/to/pear2/Autoload.php';
-$a = new pear2\MultiErrors;
+include '/path/to/PEAR2/Autoload.php';
+$a = new PEAR2\MultiErrors;
 $a-&gt;E_ERROR[] = new Exception('message one');
-$a-&gt;E_ERROR[] = new pear2\Blah\Exception('message two');
-throw new pear2\My\Exception('task failed', $a);
+$a-&gt;E_ERROR[] = new PEAR2\Blah\Exception('message two');
+throw new PEAR2\My\Exception('task failed', $a);
 ?&gt;</description>
  <lead>
   <name>Gregory Beaver</name>
@@ -57,7 +57,7 @@ throw new pear2\My\Exception('task failed', $a);
  <notes>Initial Release</notes>
  <contents>
   <dir name="/">
-   <dir name="src" baseinstalldir="pear2">
+   <dir name="src" baseinstalldir="PEAR2">
     <dir name="MultiErrors">
      <file role="php" name="Exception.php"/>
     </dir>

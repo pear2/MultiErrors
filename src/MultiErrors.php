@@ -9,7 +9,7 @@
  * Usage:
  *
  * <code>
- * $multi = new \pear2\MultiErrors();
+ * $multi = new \PEAR2\MultiErrors();
  * $multi->E_WARNING[] = new Exception('test');
  * $multi->E_ERROR[] = new Exception('test 2');
  * foreach ($multi as $error) {
@@ -22,15 +22,15 @@
  *     echo $error;
  * }
  * if (count($multi->E_ERROR)) {
- *     throw new \pear2\Exception('Failure to do something', $multi);
+ *     throw new \PEAR2\Exception('Failure to do something', $multi);
  * }
  * </code>
  * @author    Greg Beaver <cellog@php.net>
  * @copyright 2010 The PEAR Group
- * @package \pear2\MultiErrors
+ * @package \PEAR2\MultiErrors
  * @license http://www.opensource.org/licenses/bsd-license.php New BSD License
  */
-namespace pear2;
+namespace PEAR2;
 class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAccess
 {
     private $_allowedLevels = array('E_NOTICE' => 0, 'E_WARNING' => 1, 'E_ERROR' => 2);
@@ -55,9 +55,9 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
     private $_subMulti = array();
 
     /**
-     * Parent \pear2\MultiErrors for an error level tracker
+     * Parent \PEAR2\MultiErrors for an error level tracker
      *
-     * @var \pear2\MultiErrors
+     * @var \PEAR2\MultiErrors
      */
     private $_parent;
 
@@ -106,10 +106,10 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
     }
 
     /**
-     * Merge in errors from an existing \pear2\MultiErrors
+     * Merge in errors from an existing \PEAR2\MultiErrors
      *
      * This also merges in any new error levels not supported in this instance.
-     * @param \pear2\MultiErrors $error
+     * @param \PEAR2\MultiErrors $error
      */
     public function merge(MultiErrors $error)
     {
@@ -169,7 +169,7 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
         } else {
             if (!is_string($offset)) {
                 throw new MultiErrors\Exception('Cannot add an error directly ' .
-                    'to a pear2\MultiErrors with $a[] = new Exception, use an ' .
+                    'to a PEAR2\MultiErrors with $a[] = new Exception, use an ' .
                     ' E_* constant like $a->E_WARNING[] = new Exception');
             }
 
@@ -182,7 +182,7 @@ class MultiErrors extends \Exception implements \Iterator, \Countable, \ArrayAcc
             ) {
                 // must be in a child or it'll throw off the whole thingy
                 throw new MultiErrors\Exception('Cannot add an error directly ' .
-                    'to a pear2\MultiErrors with $a[] = new Exception, use an ' .
+                    'to a PEAR2\MultiErrors with $a[] = new Exception, use an ' .
                     ' E_* constant like $a->E_WARNING[] = new Exception');
             }
 

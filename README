@@ -8,10 +8,10 @@ be done with iteration, and count() can be used to determine whether errors
 were added.
 
 <?php
-include '/path/to/pear2/Autoload.php';
-$a = new pear2\MultiErrors;
+include '/path/to/PEAR2/Autoload.php';
+$a = new PEAR2\MultiErrors;
 $a->E_ERROR[] = new Exception('message one');
-$a->E_WARNING[] = new pear2\Blah\Exception('message two');
+$a->E_WARNING[] = new PEAR2\Blah\Exception('message two');
 // iterate over all errors
 foreach ($a as $error) {...}
 // iterate over E_ERROR severity
@@ -22,13 +22,13 @@ count($a->E_WARNING); // 1
 count(E_NOTICE); // 0
 ?>
 
-Used in conjuction with pear2\Exception, it can also be used as a "cause"
+Used in conjuction with PEAR2\Exception, it can also be used as a "cause"
 of an Exception:
 
 <?php
-include '/path/to/pear2/Autoload.php';
-$a = new pear2\MultiErrors;
+include '/path/to/PEAR2/Autoload.php';
+$a = new PEAR2\MultiErrors;
 $a->E_ERROR[] = new Exception('message one');
-$a->E_ERROR[] = new pear2\Blah\Exception('message two');
-throw new pear2\My\Exception('task failed', $a);
+$a->E_ERROR[] = new PEAR2\Blah\Exception('message two');
+throw new PEAR2\My\Exception('task failed', $a);
 ?>
