@@ -43,10 +43,10 @@ throw new PEAR2\My\Exception('task failed', $a);
   <email>cellog@php.net</email>
   <active>yes</active>
  </lead>
- <date>2009-07-07</date>
- <time>23:21:48</time>
+ <date>2010-05-23</date>
+ <time>08:49:38</time>
  <version>
-  <release>0.1.0</release>
+  <release>0.2.0</release>
   <api>0.1.0</api>
  </version>
  <stability>
@@ -54,7 +54,7 @@ throw new PEAR2\My\Exception('task failed', $a);
   <api>alpha</api>
  </stability>
  <license uri="http://www.opensource.org/licenses/bsd-license.php">New BSD License</license>
- <notes>Initial Release</notes>
+ <notes>Convert namespace to PEAR2</notes>
  <contents>
   <dir name="/">
    <file role="php" name="php/PEAR2/MultiErrors/Exception.php"/>
