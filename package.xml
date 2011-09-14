@@ -43,8 +43,8 @@ throw new PEAR2\My\Exception('task failed', $a);
   <email>cellog@php.net</email>
   <active>yes</active>
  </lead>
- <date>2010-05-23</date>
- <time>08:49:38</time>
+ <date>2011-09-14</date>
+ <time>13:29:25</time>
  <version>
   <release>0.2.0</release>
   <api>0.1.0</api>
@@ -57,11 +57,13 @@ throw new PEAR2\My\Exception('task failed', $a);
  <notes>Convert namespace to PEAR2</notes>
  <contents>
   <dir name="/">
-   <dir name="src" baseinstalldir="PEAR2">
-    <dir name="MultiErrors">
-     <file role="php" name="Exception.php"/>
+   <dir name="src" baseinstalldir="/">
+    <dir name="PEAR2">
+     <dir name="MultiErrors">
+      <file role="php" name="Exception.php"/>
+     </dir>
+     <file role="php" name="MultiErrors.php"/>
     </dir>
-    <file role="php" name="MultiErrors.php"/>
    </dir>
   </dir>
  </contents>
